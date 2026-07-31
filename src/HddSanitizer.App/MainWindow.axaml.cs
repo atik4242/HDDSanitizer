@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using HddSanitizer.Core;
@@ -36,7 +37,6 @@ public partial class MainWindow : Window
         {
             BtnErase.IsEnabled = SanitizerSafetyGuard.CanErase(selectedDrive);
             
-            // SMART & Details aktualisieren
             TxtSmartStatus.Text = selectedDrive.SmartStatus;
             TxtTemp.Text = selectedDrive.TemperatureC > 0 ? $"{selectedDrive.TemperatureC} °C" : "N/A";
             
@@ -70,16 +70,24 @@ public partial class MainWindow : Window
     {
         if (GridDrives.SelectedItem is DriveModel selectedDrive)
         {
-            var dialog = new ConfirmEraseWindow(selectedDrive);
-            await dialog.ShowDialog(this);
+            var confirmDialog = new ConfirmEraseWindow(selectedDrive);
+            await confirmDialog.ShowDialog(this);
 
-            if (dialog.IsConfirmed)
+            if (confirmDialog.IsConfirmed)
             {
-                bool success = await _eraser.ExecuteErasureAsync(selectedDrive, dialog.SelectedMethodName);
+                // Lade-Fenster anzeigen
+                var progressWindow = new EraseProgressWindow($"{selectedDrive.ModelName} ({selectedDrive.DevicePath})", confirmDialog.SelectedMethodName);
+                progressWindow.Show(this);
+
+                // Löschvorgang ausführen
+                bool success = await Task.Run(async () => await _eraser.ExecuteErasureAsync(selectedDrive, confirmDialog.SelectedMethodName));
+
+                // Lade-Fenster schließen
+                progressWindow.Close();
 
                 if (success)
                 {
-                    string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive, dialog.SelectedMethodName);
+                    string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive, confirmDialog.SelectedMethodName);
 
                     var msg = new Window
                     {
@@ -87,7 +95,7 @@ public partial class MainWindow : Window
                         Title = "Löschvorgang Erfolgreich",
                         Content = new TextBlock 
                         { 
-                            Text = $"Löschvorgang ({dialog.SelectedMethodName}) für {selectedDrive.SerialNumber} erfolgreich ausgeführt!\n\nAudit-Zertifikat wurde gespeichert unter:\n{Path.GetFullPath(certPath)}",
+                            Text = $"Löschvorgang ({confirmDialog.SelectedMethodName}) für {selectedDrive.SerialNumber} erfolgreich abgeschlossen!\n\nAudit-Zertifikat wurde gespeichert unter:\n{Path.GetFullPath(certPath)}",
                             Margin = new Avalonia.Thickness(20),
                             TextWrapping = Avalonia.Media.TextWrapping.Wrap
                         },

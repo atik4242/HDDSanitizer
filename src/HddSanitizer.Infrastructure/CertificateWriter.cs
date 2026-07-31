@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -41,5 +42,32 @@ public class CertificateWriter
         await File.WriteAllTextAsync(filePath, json);
 
         return filePath;
+    }
+
+    public async Task<List<ErasureCertificate>> GetAllCertificatesAsync()
+    {
+        var certificates = new List<ErasureCertificate>();
+
+        if (!Directory.Exists(_outputDirectory)) return certificates;
+
+        var files = Directory.GetFiles(_outputDirectory, "*.json");
+        foreach (var file in files)
+        {
+            try
+            {
+                string json = await File.ReadAllTextAsync(file);
+                var cert = JsonSerializer.Deserialize<ErasureCertificate>(json);
+                if (cert != null)
+                {
+                    certificates.Add(cert);
+                }
+            }
+            catch
+            {
+                // Defekte oder fehlerhafte Log-Dateien überspringen
+            }
+        }
+
+        return certificates;
     }
 }

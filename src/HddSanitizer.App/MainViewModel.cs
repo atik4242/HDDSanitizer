@@ -1,8 +1,11 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using HddSanitizer.Core;
 using HddSanitizer.Domain;
 using HddSanitizer.Infrastructure;
+using HddSanitizer.SeaChest;
 
 namespace HddSanitizer.App;
 
@@ -14,7 +17,15 @@ public class MainViewModel
 
     public MainViewModel()
     {
-        _scanner = new WindowsDriveScanner();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _scanner = new WindowsDriveScanner();
+        }
+        else
+        {
+            _scanner = new SeaChestDriveScanner();
+        }
+
         _ = LoadDrivesAsync();
     }
 

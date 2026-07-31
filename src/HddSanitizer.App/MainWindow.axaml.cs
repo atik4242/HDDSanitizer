@@ -31,6 +31,12 @@ public partial class MainWindow : Window
         ResetDetailPanel();
     }
 
+    private async void OnShowCertificatesClick(object? sender, RoutedEventArgs e)
+    {
+        var viewer = new CertificateViewerWindow();
+        await viewer.ShowDialog(this);
+    }
+
     private void OnDriveSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (GridDrives.SelectedItem is DriveModel selectedDrive)
@@ -75,14 +81,11 @@ public partial class MainWindow : Window
 
             if (confirmDialog.IsConfirmed)
             {
-                // Lade-Fenster anzeigen
                 var progressWindow = new EraseProgressWindow($"{selectedDrive.ModelName} ({selectedDrive.DevicePath})", confirmDialog.SelectedMethodName);
                 progressWindow.Show(this);
 
-                // Löschvorgang ausführen
                 bool success = await Task.Run(async () => await _eraser.ExecuteErasureAsync(selectedDrive, confirmDialog.SelectedMethodName));
 
-                // Lade-Fenster schließen
                 progressWindow.Close();
 
                 if (success)

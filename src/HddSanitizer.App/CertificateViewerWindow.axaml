@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HddSanitizer.App.CertificateViewerWindow"
+        x:CompileBindings="False"
+        Title="📜 Löschzertifikat Audit Log"
+        Width="850" Height="500"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto, *, Auto" Margin="20">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Spacing="5" Margin="0,0,0,15">
+            <TextBlock Text="📜 Gespeicherte Audit-Zertifikate" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Text="Übersicht aller erfolgreich durchgeführten Sanitization-Protokolle" Foreground="Gray"/>
+        </StackPanel>
+
+        <!-- Tabelle für Zertifikate -->
+        <DataGrid Grid.Row="1" x:Name="GridCerts" AutoGenerateColumns="False"
+                  IsReadOnly="True" GridLinesVisibility="All" BorderThickness="1" BorderBrush="#333333">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Zertifikat ID" Binding="{Binding CertificateId}" Width="120"/>
+                <DataGridTextColumn Header="Datum / Zeit (UTC)" Binding="{Binding TimestampUtc}" Width="160"/>
+                <DataGridTextColumn Header="Modell" Binding="{Binding ModelName}" Width="200"/>
+                <DataGridTextColumn Header="Seriennummer" Binding="{Binding SerialNumber}" Width="150"/>
+                <DataGridTextColumn Header="Methode" Binding="{Binding ErasureMethod}" Width="220"/>
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Footer -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Content="Schließen" Click="OnCloseClick"/>
+        </StackPanel>
+    </Grid>
+</Window>

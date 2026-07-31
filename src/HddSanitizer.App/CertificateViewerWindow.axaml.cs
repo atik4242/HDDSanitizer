@@ -1,5 +1,7 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using HddSanitizer.Domain;
 using HddSanitizer.Infrastructure;
 
 namespace HddSanitizer.App;
@@ -12,6 +14,7 @@ public partial class CertificateViewerWindow : Window
     {
         InitializeComponent();
         _certWriter = new CertificateWriter();
+        GridCerts.DoubleTapped += OnGridDoubleTapped;
         _ = LoadCertificatesAsync();
     }
 
@@ -19,6 +22,15 @@ public partial class CertificateViewerWindow : Window
     {
         var certs = await _certWriter.GetAllCertificatesAsync();
         GridCerts.ItemsSource = certs;
+    }
+
+    private async void OnGridDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (GridCerts.SelectedItem is ErasureCertificate cert)
+        {
+            var detailWindow = new CertificateDetailWindow(cert);
+            await detailWindow.ShowDialog(this);
+        }
     }
 
     private void OnCloseClick(object? sender, RoutedEventArgs e)

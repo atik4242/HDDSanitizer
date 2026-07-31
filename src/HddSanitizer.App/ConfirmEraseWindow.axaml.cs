@@ -10,6 +10,7 @@ public partial class ConfirmEraseWindow : Window
     private readonly DriveModel? _targetDrive;
 
     public bool IsConfirmed { get; private set; }
+    public string SelectedMethodName { get; private set; } = "NIST 800-88 Clear (Zero-Fill Overwrite)";
 
     public ConfirmEraseWindow()
     {
@@ -26,6 +27,11 @@ public partial class ConfirmEraseWindow : Window
 
     private void OnConfirmClick(object? sender, RoutedEventArgs e)
     {
+        if (ComboMethod.SelectedItem is ComboBoxItem selectedItem)
+        {
+            SelectedMethodName = selectedItem.Content?.ToString() ?? SelectedMethodName;
+        }
+
         if (_targetDrive != null && SanitizerSafetyGuard.VerifySerialNumber(_targetDrive, InputSerial.Text ?? ""))
         {
             IsConfirmed = true;

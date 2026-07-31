@@ -2,11 +2,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HddSanitizer.App.ConfirmEraseWindow"
         Title="⚠️ WARNUNG: Löschvorgang bestätigen"
-        Width="500" Height="320"
+        Width="520" Height="380"
         WindowStartupLocation="CenterOwner"
         CanResize="False">
 
-    <StackPanel Margin="20" Spacing="15">
+    <StackPanel Margin="20" Spacing="12">
         <TextBlock Text="⚠️ ACHTUNG: LÖSCHVORGANG IST UNUMKEHRBAR!" FontSize="16" FontWeight="Bold" Foreground="Red"/>
         
         <TextBlock TextWrapping="Wrap">
@@ -20,6 +20,15 @@
                 <TextBlock x:Name="TxtSerial" Foreground="Yellow"/>
             </StackPanel>
         </Border>
+
+        <StackPanel Spacing="4">
+            <TextBlock Text="Löschmethode auswählen:" FontSize="12" FontWeight="SemiBold"/>
+            <ComboBox x:Name="ComboMethod" HorizontalAlignment="Stretch" SelectedIndex="0">
+                <ComboBoxItem>NIST 800-88 Clear (Zero-Fill Overwrite)</ComboBoxItem>
+                <ComboBoxItem>Hardware Native Sanitize / Secure Erase</ComboBoxItem>
+                <ComboBoxItem>Random Pattern Overwrite (1-Pass)</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
 
         <TextBlock Text="Bitte geben Sie zur Bestätigung die Seriennummer exakt ein:" FontSize="12"/>
         <TextBox x:Name="InputSerial" Watermark="Seriennummer hier eingeben..."/>

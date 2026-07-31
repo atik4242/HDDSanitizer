@@ -47,15 +47,15 @@ public partial class MainWindow : Window
 
             if (dialog.IsConfirmed)
             {
-                string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive);
+                string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive, dialog.SelectedMethodName);
 
                 var msg = new Window
                 {
-                    Width = 480, Height = 180,
+                    Width = 500, Height = 200,
                     Title = "Löschzertifikat Erstellt",
                     Content = new TextBlock 
                     { 
-                        Text = $"Löschvorgang für {selectedDrive.SerialNumber} erfolgreich abgeschlossen!\n\nAudit-Zertifikat wurde gespeichert unter:\n{Path.GetFullPath(certPath)}",
+                        Text = $"Löschvorgang ({dialog.SelectedMethodName}) für {selectedDrive.SerialNumber} erfolgreich abgeschlossen!\n\nAudit-Zertifikat wurde gespeichert unter:\n{Path.GetFullPath(certPath)}",
                         Margin = new Avalonia.Thickness(20),
                         TextWrapping = Avalonia.Media.TextWrapping.Wrap
                     },

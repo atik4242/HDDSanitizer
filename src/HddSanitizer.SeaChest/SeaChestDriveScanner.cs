@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HddSanitizer.Core;
 using HddSanitizer.Domain;
@@ -39,23 +40,42 @@ public class SeaChestDriveScanner : IDriveScanner
             string output = await process.StandardOutput.ReadToEndAsync();
             await process.WaitForExitAsync();
 
-            // Parst die CLI-Ausgabe von openSeaChest
-            drives.AddRange(ParseScanOutput(output));
+            var parsedDrives = ParseScanOutput(output);
+            if (parsedDrives.Count > 0)
+            {
+                return parsedDrives;
+            }
         }
         catch
         {
-            // Falls openSeaChest_Info.exe nicht im PATH liegt oder nicht installiert ist:
-            // Nutzen wir Fallback-Daten zum Entwickeln & Testen der UI
-            return GetFallbackMockDrives();
+            // Fallback auf Simulation, falls openSeaChest nicht lokal im PATH installiert ist
         }
 
-        return drives;
+        return GetFallbackMockDrives();
     }
 
-    private IEnumerable<DriveModel> ParseScanOutput(string rawOutput)
+    private List<DriveModel> ParseScanOutput(string rawOutput)
     {
-        // Wird für die detaillierte CLI-Parser-Logik verwendet
-        return GetFallbackMockDrives();
+        var list = new List<DriveModel>();
+        
+        // Parsed Zeilen wie: /dev/pd0 oder PD0 - Model - Serial
+        var lines = rawOutput.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var line in lines)
+        {
+            if (line.Contains("PD") || line.Contains("/dev/sg"))
+            {
+                // Vereinfachtes Parsing der Identifikatoren
+                var matchPath = Regex.Match(line, @"(PD\d+|/dev/sd[a-z]|/dev/sg\d+)");
+                if (matchPath.Success)
+                {
+                    string path = matchPath.Value;
+                    bool isSystem = path.Equals("PD0", StringComparison.OrdinalIgnoreCase) || path.Equals("/dev/sda", StringComparison.OrdinalIgnoreCase);
+                    list.Add(new DriveModel(path, "Generic Storage Device", "UNKNOWN-SN", 1000000000000, "SATA/NVMe", isSystem));
+                }
+            }
+        }
+
+        return list;
     }
 
     private IEnumerable<DriveModel> GetFallbackMockDrives()

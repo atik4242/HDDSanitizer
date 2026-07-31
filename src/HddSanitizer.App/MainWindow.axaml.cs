@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using HddSanitizer.Core;
 using HddSanitizer.Domain;
 using HddSanitizer.Infrastructure;
+using HddSanitizer.SeaChest;
 
 namespace HddSanitizer.App;
 
@@ -11,6 +12,7 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly CertificateWriter _certWriter;
+    private readonly SeaChestEraser _eraser;
 
     public MainWindow()
     {
@@ -18,6 +20,7 @@ public partial class MainWindow : Window
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
         _certWriter = new CertificateWriter();
+        _eraser = new SeaChestEraser();
     }
 
     private async void OnRefreshClick(object? sender, RoutedEventArgs e)
@@ -47,21 +50,28 @@ public partial class MainWindow : Window
 
             if (dialog.IsConfirmed)
             {
-                string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive, dialog.SelectedMethodName);
+                // 1. Führe den Löschbefehl über openSeaChest CLI aus
+                bool success = await _eraser.ExecuteErasureAsync(selectedDrive, dialog.SelectedMethodName);
 
-                var msg = new Window
+                if (success)
                 {
-                    Width = 500, Height = 200,
-                    Title = "Löschzertifikat Erstellt",
-                    Content = new TextBlock 
-                    { 
-                        Text = $"Löschvorgang ({dialog.SelectedMethodName}) für {selectedDrive.SerialNumber} erfolgreich abgeschlossen!\n\nAudit-Zertifikat wurde gespeichert unter:\n{Path.GetFullPath(certPath)}",
-                        Margin = new Avalonia.Thickness(20),
-                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
-                    },
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-                await msg.ShowDialog(this);
+                    // 2. Erzeuge das Audit-Zertifikat
+                    string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive, dialog.SelectedMethodName);
+
+                    var msg = new Window
+                    {
+                        Width = 500, Height = 200,
+                        Title = "Löschvorgang Erfolgreich",
+                        Content = new TextBlock 
+                        { 
+                            Text = $"Löschvorgang ({dialog.SelectedMethodName}) für {selectedDrive.SerialNumber} erfolgreich ausgeführt!\n\nAudit-Zertifikat wurde gespeichert unter:\n{Path.GetFullPath(certPath)}",
+                            Margin = new Avalonia.Thickness(20),
+                            TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                        },
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner
+                    };
+                    await msg.ShowDialog(this);
+                }
             }
         }
     }

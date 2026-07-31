@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using HddSanitizer.Core;
 using HddSanitizer.Domain;
-using HddSanitizer.SeaChest;
+using HddSanitizer.Infrastructure;
 
 namespace HddSanitizer.App;
 
@@ -14,7 +14,7 @@ public class MainViewModel
 
     public MainViewModel()
     {
-        _scanner = new SeaChestDriveScanner();
+        _scanner = new WindowsDriveScanner();
         _ = LoadDrivesAsync();
     }
 

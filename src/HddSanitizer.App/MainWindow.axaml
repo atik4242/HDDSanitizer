@@ -2,16 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
+        mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="650"
         x:Class="HddSanitizer.App.MainWindow"
         x:CompileBindings="False"
         Title="HDD Sanitizer - Enterprise Erasure Suite"
-        Width="950" Height="600"
+        Width="980" Height="680"
         WindowStartupLocation="CenterScreen">
 
-    <Grid RowDefinitions="Auto, *, Auto" Margin="20">
+    <Grid RowDefinitions="Auto, *, Auto, Auto" Margin="20">
         <!-- Header -->
-        <StackPanel Grid.Row="0" Spacing="5" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Spacing="5" Margin="0,0,0,15">
             <TextBlock Text="🪓 HDD Sanitizer Dashboard" FontSize="22" FontWeight="Bold"/>
             <TextBlock Text="Erkannte Laufwerke &amp; Sanitization Management" Foreground="Gray"/>
         </StackPanel>
@@ -22,7 +22,7 @@
                   SelectionChanged="OnDriveSelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Pfad" Binding="{Binding DevicePath}" Width="80"/>
-                <DataGridTextColumn Header="Modell" Binding="{Binding ModelName}" Width="250"/>
+                <DataGridTextColumn Header="Modell" Binding="{Binding ModelName}" Width="260"/>
                 <DataGridTextColumn Header="Seriennummer" Binding="{Binding SerialNumber}" Width="160"/>
                 <DataGridTextColumn Header="Kapazität (TB)" Binding="{Binding CapacityTB}" Width="120"/>
                 <DataGridTextColumn Header="Schnittstelle" Binding="{Binding InterfaceType}" Width="100"/>
@@ -30,8 +30,26 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <!-- SMART & Hardware Detail Panel -->
+        <Border Grid.Row="2" Background="#1E1E1E" CornerRadius="6" Padding="15" Margin="0,15,0,0" BorderThickness="1" BorderBrush="#333333">
+            <Grid ColumnDefinitions="*, *, *">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <TextBlock Text="🩺 SMART-Gesundheitsstatus:" FontSize="12" Foreground="Gray"/>
+                    <TextBlock x:Name="TxtSmartStatus" Text="Keine Auswahl" FontWeight="Bold" Foreground="LightGreen" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="3">
+                    <TextBlock Text="🌡️ Betriebstemperatur:" FontSize="12" Foreground="Gray"/>
+                    <TextBlock x:Name="TxtTemp" Text="--" FontWeight="Bold" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="3">
+                    <TextBlock Text="🔒 System-Sicherheit:" FontSize="12" Foreground="Gray"/>
+                    <TextBlock x:Name="TxtSecurity" Text="--" FontWeight="Bold" FontSize="14"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Footer / Statusbar -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
             <Button Content="🔄 Liste aktualisieren" Click="OnRefreshClick"/>
             <Button x:Name="BtnErase" Content="🛡️ Ausgewähltes Laufwerk Löschen" IsEnabled="False" Click="OnEraseClick"/>
         </StackPanel>

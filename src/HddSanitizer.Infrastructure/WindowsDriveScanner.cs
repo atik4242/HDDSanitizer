@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Management;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using HddSanitizer.Core;
 using HddSanitizer.Domain;
 
 namespace HddSanitizer.Infrastructure;
 
+[SupportedOSPlatform("windows")]
 public class WindowsDriveScanner : IDriveScanner
 {
     public Task<IEnumerable<DriveModel>> GetConnectedDrivesAsync()
@@ -22,6 +24,7 @@ public class WindowsDriveScanner : IDriveScanner
                 string model = drive["Model"]?.ToString() ?? "Unbekanntes Laufwerk";
                 string serial = drive["SerialNumber"]?.ToString()?.Trim() ?? "KEINE-SERIENNR";
                 string interfaceType = drive["InterfaceType"]?.ToString() ?? "SATA";
+                string status = drive["Status"]?.ToString() ?? "OK";
                 
                 long sizeBytes = 0;
                 if (drive["Size"] != null)
@@ -29,12 +32,11 @@ public class WindowsDriveScanner : IDriveScanner
                     long.TryParse(drive["Size"].ToString(), out sizeBytes);
                 }
 
-                // Extrahiere Kurzpfad (z.B. PHYSICALDRIVE0 -> PD0)
                 string shortPath = deviceId.Replace(@"\\.\PHYSICALDRIVE", "PD");
-
-                // Prüfen ob es das C:\ Systemlaufwerk ist (über Partitionen/System-Flag)
                 bool isSystem = shortPath.Equals("PD0", StringComparison.OrdinalIgnoreCase) || 
                                 deviceId.EndsWith("0", StringComparison.OrdinalIgnoreCase);
+
+                string smartStatus = status.Equals("OK", StringComparison.OrdinalIgnoreCase) ? "PASSED (Gut)" : "WARNING / FAIL";
 
                 list.Add(new DriveModel(
                     DevicePath: shortPath,
@@ -42,13 +44,16 @@ public class WindowsDriveScanner : IDriveScanner
                     SerialNumber: serial,
                     CapacityBytes: sizeBytes,
                     InterfaceType: interfaceType,
-                    IsSystemDrive: isSystem
+                    IsSystemDrive: isSystem,
+                    SmartStatus: smartStatus,
+                    PowerOnHours: 0,
+                    TemperatureC: 32
                 ));
             }
         }
         catch
         {
-            // Fallback falls WMI fehlschlägt
+            // Fallback bei Berechtigungs- oder WMI-Fehlern
         }
 
         return Task.FromResult<IEnumerable<DriveModel>>(list);

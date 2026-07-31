@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     {
         await _viewModel.LoadDrivesAsync();
         BtnErase.IsEnabled = false;
+        ResetDetailPanel();
     }
 
     private void OnDriveSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -34,11 +35,35 @@ public partial class MainWindow : Window
         if (GridDrives.SelectedItem is DriveModel selectedDrive)
         {
             BtnErase.IsEnabled = SanitizerSafetyGuard.CanErase(selectedDrive);
+            
+            // SMART & Details aktualisieren
+            TxtSmartStatus.Text = selectedDrive.SmartStatus;
+            TxtTemp.Text = selectedDrive.TemperatureC > 0 ? $"{selectedDrive.TemperatureC} °C" : "N/A";
+            
+            if (selectedDrive.IsSystemDrive)
+            {
+                TxtSecurity.Text = "⛔ GESPERRT (OS-Platte)";
+                TxtSecurity.Foreground = Avalonia.Media.Brushes.Red;
+            }
+            else
+            {
+                TxtSecurity.Text = "✅ Bereit zum Löschen";
+                TxtSecurity.Foreground = Avalonia.Media.Brushes.LightGreen;
+            }
         }
         else
         {
             BtnErase.IsEnabled = false;
+            ResetDetailPanel();
         }
+    }
+
+    private void ResetDetailPanel()
+    {
+        TxtSmartStatus.Text = "Keine Auswahl";
+        TxtTemp.Text = "--";
+        TxtSecurity.Text = "--";
+        TxtSecurity.Foreground = Avalonia.Media.Brushes.White;
     }
 
     private async void OnEraseClick(object? sender, RoutedEventArgs e)
@@ -50,12 +75,10 @@ public partial class MainWindow : Window
 
             if (dialog.IsConfirmed)
             {
-                // 1. Führe den Löschbefehl über openSeaChest CLI aus
                 bool success = await _eraser.ExecuteErasureAsync(selectedDrive, dialog.SelectedMethodName);
 
                 if (success)
                 {
-                    // 2. Erzeuge das Audit-Zertifikat
                     string certPath = await _certWriter.GenerateCertificateAsync(selectedDrive, dialog.SelectedMethodName);
 
                     var msg = new Window

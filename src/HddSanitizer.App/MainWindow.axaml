@@ -17,8 +17,9 @@
         </StackPanel>
 
         <!-- Laufwerks-Tabelle -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Drives}" AutoGenerateColumns="False"
-                  IsReadOnly="True" GridLinesVisibility="All" BorderThickness="1" BorderBrush="#333333">
+        <DataGrid Grid.Row="1" x:Name="GridDrives" ItemsSource="{Binding Drives}" AutoGenerateColumns="False"
+                  IsReadOnly="True" GridLinesVisibility="All" BorderThickness="1" BorderBrush="#333333"
+                  SelectionChanged="OnDriveSelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Pfad" Binding="{Binding DevicePath}" Width="80"/>
                 <DataGridTextColumn Header="Modell" Binding="{Binding ModelName}" Width="250"/>
@@ -32,7 +33,7 @@
         <!-- Footer / Statusbar -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
             <Button Content="🔄 Liste aktualisieren" Click="OnRefreshClick"/>
-            <Button Content="🛡️ Ausgewähltes Laufwerk Löschen" IsEnabled="False"/>
+            <Button x:Name="BtnErase" Content="🛡️ Ausgewähltes Laufwerk Löschen" IsEnabled="False" Click="OnEraseClick"/>
         </StackPanel>
     </Grid>
 </Window>

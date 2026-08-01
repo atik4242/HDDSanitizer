@@ -1,7 +1,7 @@
+# Binaries & Third-Party Tools
+*.exe
+openSeaChest_Erase.exe
+openSeaChest_Info.exe
+logs/
 bin/
 obj/
-.vs/
-.idea/
-*.user
-logs/
-publish/

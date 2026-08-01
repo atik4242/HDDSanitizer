@@ -1,17 +1,1 @@
-using Avalonia;
-using System;
-
-namespace HddSanitizer.App;
-
-class Program
-{
-    [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
-
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            .WithInterFont()
-            .LogToTrace();
-}
+using System; using System.IO; using Avalonia; namespace HddSanitizer.App { internal sealed class Program { [STAThread] public static void Main(string[] args) { try { BuildAvaloniaApp().StartWithClassicDesktopLifetime(args); } catch (Exception ex) { File.WriteAllText("crash.log", $"CRASH BEIM START:\n{ex}"); throw; } } public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>().UsePlatformDetect().LogToTrace(); } }

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/HddSanitizer.App/app.ico" width="128" height="128" alt="HDD Sanitizer Logo"/>
+  <img src="logo.svg" width="140" height="140" alt="HDD Sanitizer Logo"/>
   <h1 align="center">🪓 HDD Sanitizer Enterprise</h1>
 </p>
 

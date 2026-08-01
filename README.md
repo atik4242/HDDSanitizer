@@ -26,3 +26,14 @@ Da openSeaChest ein externes Open-Source-Tool von Seagate ist, wird es nicht mit
 Da die App direkten Hardware-Zugriff auf Laufwerkscontroller benötigt, muss sie mit Administratorrechten gestartet werden:
 
 dotnet run --project src/HddSanitizer.App/HddSanitizer.App.csproj
+
+---
+
+## 📄 License & Credits
+
+Dieses Projekt steht unter der **MIT-Lizenz** – siehe [LICENSE](LICENSE) für Details.
+
+### Third-Party Software
+* **[Seagate openSeaChest](https://github.com/Seagate/openSeaChest)** – Lizenziert unter [MPL 2.0](https://www.mozilla.org/MPL/2.0/).
+* **[Avalonia UI](https://github.com/AvaloniaUI/Avalonia)** – Lizenziert unter [MIT License](https://github.com/AvaloniaUI/Avalonia/blob/master/LICENSE).
+* **[QuestPDF](https://github.com/QuestPDF/QuestPDF)** – Lizenziert unter der [QuestPDF Community License](https://www.questpdf.com/license/) (Kostenlos für Open-Source / KMU).

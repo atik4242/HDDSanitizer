@@ -29,6 +29,7 @@ public partial class MainWindow : Window
     {
         await _viewModel.LoadDrivesAsync();
         BtnErase.IsEnabled = false;
+        BtnCheckProgress.IsEnabled = false;
         ResetDetailPanel();
     }
 
@@ -38,15 +39,68 @@ public partial class MainWindow : Window
         await viewer.ShowDialog(this);
     }
 
+    private async void OnCheckProgressClick(object? sender, RoutedEventArgs e)
+    {
+        if (GridDrives.SelectedItem is DriveModel selectedDrive)
+        {
+            string progressInfo = await _eraser.CheckProgressAsync(selectedDrive);
+
+            var infoWindow = new Window
+            {
+                Width = 600, Height = 350,
+                Title = $"Status-Abfrage ({selectedDrive.DevicePath})",
+                Content = new Grid
+                {
+                    Margin = new Avalonia.Thickness(15),
+                    RowDefinitions = new RowDefinitions("*, Auto"),
+                    Children = 
+                    {
+                        new Border
+                        {
+                            Background = Brushes.Black,
+                            CornerRadius = new Avalonia.CornerRadius(5),
+                            Padding = new Avalonia.Thickness(10),
+                            Child = new ScrollViewer
+                            {
+                                Content = new TextBlock
+                                {
+                                    Text = progressInfo,
+                                    FontFamily = new FontFamily("Consolas, Courier New, Monospace"),
+                                    Foreground = Brushes.LightGreen,
+                                    TextWrapping = TextWrapping.Wrap
+                                }
+                            }
+                        },
+                        new Button
+                        {
+                            Content = "Schließen",
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                            Margin = new Avalonia.Thickness(0, 10, 0, 0),
+                            [Grid.RowProperty] = 1
+                        }
+                    }
+                },
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
+
+            if (infoWindow.Content is Grid g && g.Children[1] is Button closeBtn)
+            {
+                closeBtn.Click += (_, _) => infoWindow.Close();
+            }
+
+            await infoWindow.ShowDialog(this);
+        }
+    }
+
     private void OnDriveSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (GridDrives.SelectedItem is DriveModel selectedDrive)
         {
             BtnErase.IsEnabled = SanitizerSafetyGuard.CanErase(selectedDrive);
+            BtnCheckProgress.IsEnabled = true;
             
             TxtSmartStatus.Text = selectedDrive.SmartStatus;
             
-            // Temperatur anzeigen
             int temp = selectedDrive.TemperatureC > 0 ? selectedDrive.TemperatureC : 33;
             TxtTemp.Text = $"{temp} °C (Normal)";
             
@@ -64,6 +118,7 @@ public partial class MainWindow : Window
         else
         {
             BtnErase.IsEnabled = false;
+            BtnCheckProgress.IsEnabled = false;
             ResetDetailPanel();
         }
     }
@@ -88,7 +143,13 @@ public partial class MainWindow : Window
                 var progressWindow = new EraseProgressWindow($"{selectedDrive.ModelName} ({selectedDrive.DevicePath})", confirmDialog.SelectedMethodName);
                 progressWindow.Show(this);
 
-                bool success = await Task.Run(async () => await _eraser.ExecuteErasureAsync(selectedDrive, confirmDialog.SelectedMethodName));
+                bool success = await Task.Run(async () => 
+                    await _eraser.ExecuteErasureAsync(
+                        selectedDrive, 
+                        confirmDialog.SelectedMethodName, 
+                        outputLine => progressWindow.AppendLog(outputLine)
+                    )
+                );
 
                 progressWindow.Close();
 

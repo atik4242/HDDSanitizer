@@ -30,7 +30,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- SMART & Hardware Detail Panel (Modernes helles Design) -->
+        <!-- SMART & Hardware Detail Panel -->
         <Border Grid.Row="2" Background="#F8F9FA" CornerRadius="6" Padding="15" Margin="0,15,0,0" BorderThickness="1" BorderBrush="#E0E0E0">
             <Grid ColumnDefinitions="*, *, *">
                 <StackPanel Grid.Column="0" Spacing="3">
@@ -50,6 +50,7 @@
 
         <!-- Footer / Statusbar -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
+            <Button x:Name="BtnCheckProgress" Content="🔍 Status prüfen" IsEnabled="False" Click="OnCheckProgressClick"/>
             <Button Content="📜 Zertifikate anzeigen" Click="OnShowCertificatesClick"/>
             <Button Content="🔄 Liste aktualisieren" Click="OnRefreshClick"/>
             <Button x:Name="BtnErase" Content="🛡️ Ausgewähltes Laufwerk Löschen" IsEnabled="False" Click="OnEraseClick"/>

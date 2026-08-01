@@ -1,4 +1,7 @@
-# 🪓 HDD Sanitizer Enterprise
+<p align="center">
+  <img src="src/HddSanitizer.App/app.ico" width="128" height="128" alt="HDD Sanitizer Logo"/>
+  <h1 align="center">🪓 HDD Sanitizer Enterprise</h1>
+</p>
 
 Eine moderne C# / Avalonia UI Anwendung zur sicheren und zertifizierten Datenlöschung von Festplatten (HDD/SSD/NVMe) unter Verwendung der Seagate openSeaChest CLI.
 

@@ -6,6 +6,7 @@
         x:Class="HddSanitizer.App.MainWindow"
         x:CompileBindings="False"
         Title="HDD Sanitizer - Enterprise Erasure Suite"
+        Icon="app.ico"
         Width="980" Height="680"
         WindowStartupLocation="CenterScreen">
 

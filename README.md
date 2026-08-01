@@ -37,3 +37,8 @@ Dieses Projekt steht unter der **MIT-Lizenz** – siehe [LICENSE](LICENSE) für 
 * **[Seagate openSeaChest](https://github.com/Seagate/openSeaChest)** – Lizenziert unter [MPL 2.0](https://www.mozilla.org/MPL/2.0/).
 * **[Avalonia UI](https://github.com/AvaloniaUI/Avalonia)** – Lizenziert unter [MIT License](https://github.com/AvaloniaUI/Avalonia/blob/master/LICENSE).
 * **[QuestPDF](https://github.com/QuestPDF/QuestPDF)** – Lizenziert unter der [QuestPDF Community License](https://www.questpdf.com/license/) (Kostenlos für Open-Source / KMU).
+
+> **💡 Hinweis zu Windows SmartScreen:**
+
+> **💡 Hinweis zu Windows SmartScreen:**
+> Da es sich um eine Open-Source-Anwendung ohne gekauftes Code-Signing-Zertifikat handelt, zeigt Windows beim ersten Start eventuell eine SmartScreen-Meldung an (*"Der Computer wurde durch Windows geschützt"*). Klicke einfach auf **"Weitere Informationen"** ➔ **"Trotzdem ausführen"**.

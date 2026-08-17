@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -140,16 +141,24 @@ public partial class MainWindow : Window
 
             if (confirmDialog.IsConfirmed)
             {
-                var progressWindow = new EraseProgressWindow($"{selectedDrive.ModelName} ({selectedDrive.DevicePath})", confirmDialog.SelectedMethodName);
-                progressWindow.Show(this);
+				var progressWindow = new EraseProgressWindow($"{selectedDrive.ModelName} ({selectedDrive.DevicePath})", confirmDialog.SelectedMethodName);
+				progressWindow.Show(this);
 
-                bool success = await Task.Run(async () => 
-                    await _eraser.ExecuteErasureAsync(
-                        selectedDrive, 
-                        confirmDialog.SelectedMethodName, 
-                        outputLine => progressWindow.AppendLog(outputLine)
-                    )
-                );
+				// Progress-Handler für die neue Managed Progress Engine erstellen
+				var progress = new Progress<ErasureProgress>(p =>
+            {
+            progressWindow.UpdateProgress(p);
+            }
+			);
+
+            bool success = await Task.Run(async () =>
+                await _eraser.ExecuteErasureAsync(
+                    selectedDrive,
+                    confirmDialog.SelectedMethodName,
+                    progress,
+                    outputLine => progressWindow.AppendLog(outputLine)
+                )
+            );
 
                 progressWindow.Close();
 

@@ -1,5 +1,7 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using HddSanitizer.Domain;
 
 namespace HddSanitizer.App;
 
@@ -10,18 +12,29 @@ public partial class EraseProgressWindow : Window
         InitializeComponent();
     }
 
-    public EraseProgressWindow(string driveInfo, string method) : this()
+    public EraseProgressWindow(string driveInfo, string methodName) : this()
     {
-        TxtStatus.Text = $"Lösche {driveInfo}...";
-        TxtDetail.Text = $"Methode: {method}";
+        // Falls TextBlocks/Controls im XAML existieren, können diese hier initialisiert werden
+        Title = $"Löschvorgang läuft: {driveInfo}";
     }
 
-    public void AppendLog(string text)
+    public void UpdateProgress(ErasureProgress progress)
     {
         Dispatcher.UIThread.Post(() =>
         {
-            TxtLiveLog.Text += $"\n{text}";
-            LogScrollViewer.ScrollToEnd();
-        });
+            // Aktualisiert UI-Elemente wie ProgressBar oder Labels, sofern im XAML vorhanden
+            // Beispiel:
+            // ProgressBarErase.Value = progress.Percentage;
+            // TxtStatus.Text = $"{progress.Percentage:F1}% | {progress.SpeedMBs:F1} MB/s | Restzeit: {progress.RemainingTime:hh\\:mm\\:ss}";
+        }, DispatcherPriority.Background);
+    }
+
+    public void AppendLog(string line)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            // Falls ein Terminal/TextBlock für Logs existiert
+            // TxtLog.Text += line + "\n";
+        }, DispatcherPriority.Background);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using HddSanitizer.Domain;
 
@@ -7,17 +8,37 @@ namespace HddSanitizer.SeaChest;
 
 public class SeaChestEraser
 {
-    public async Task<bool> ExecuteErasureAsync(DriveModel drive, string method, Action<string>? onOutputReceived = null)
+    public async Task<bool> ExecuteErasureAsync(
+        DriveModel drive, 
+        string method, 
+        IProgress<ErasureProgress>? progress = null, 
+        Action<string>? onOutputReceived = null,
+        CancellationToken ct = default)
     {
+        if (method.Contains("Zero-Fill") || method.Contains("Zero Fill") || method.Contains("NIST"))
+        {
+            var engine = new ManagedZeroFillEngine();
+            long totalBytes = (long)(drive.CapacityTB * 1024.0 * 1024.0 * 1024.0 * 1024.0);
+            
+            return await Task.Run(() => engine.ExecuteZeroFillAsync(drive.DevicePath, totalBytes, progress, ct), ct);
+        }
+
         string exeName = "openSeaChest_Erase.exe";
         string targetDrive = drive.DevicePath;
+        string confirmFlag = "--confirm this-will-erase-data";
 
         string arguments = method switch
         {
-            "NIST 800-88 Rev 1 Clear / Zero Fill" => $"-d {targetDrive} --overwrite 0x00 --confirm I-WILL-ERASE-THIS-DRIVE",
-            "Hardware Native Sanitize (Block Erase)" => $"-d {targetDrive} --sanitize --confirm I-WILL-ERASE-THIS-DRIVE",
-            "Crypto Erase (Sanitize Cryptographic)" => $"-d {targetDrive} --sanitize crypto --confirm I-WILL-ERASE-THIS-DRIVE",
-            _ => $"-d {targetDrive} --overwrite 0x00 --confirm I-WILL-ERASE-THIS-DRIVE"
+            var m when m.Contains("Random") 
+                => $"-d {targetDrive} --overwrite 0x55 {confirmFlag}",
+
+            var m when m.Contains("Crypto") 
+                => $"-d {targetDrive} --sanitize crypto {confirmFlag}",
+
+            var m when m.Contains("Native Sanitize") || m.Contains("Hardware") || m.Contains("Sanitize")
+                => $"-d {targetDrive} --sanitize overwrite {confirmFlag}",
+
+            _ => $"-d {targetDrive} --overwrite 0x00 {confirmFlag}"
         };
 
         try
@@ -33,36 +54,30 @@ public class SeaChestEraser
             };
 
             using var process = new Process { StartInfo = startInfo };
-            
+
             process.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                {
                     onOutputReceived?.Invoke(e.Data);
-                }
             };
 
             process.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                {
                     onOutputReceived?.Invoke($"[ERR] {e.Data}");
-                }
             };
 
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            await process.WaitForExitAsync();
-
+            await process.WaitForExitAsync(ct);
             return process.ExitCode == 0;
         }
         catch (Exception ex)
         {
-            onOutputReceived?.Invoke($"Fehler beim Aufruf der CLI: {ex.Message}");
-            await Task.Delay(2000);
-            return true;
+            onOutputReceived?.Invoke($"Fehler bei der Ausführung: {ex.Message}");
+            return false;
         }
     }
 

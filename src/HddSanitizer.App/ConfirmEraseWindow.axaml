@@ -13,12 +13,12 @@
             Sie sind dabei, sämtliche Daten auf folgendem Laufwerk dauerhaft zu vernichten:
         </TextBlock>
 
-        <Border Background="#222222" Padding="10" CornerRadius="5">
-            <StackPanel Spacing="3">
-                <TextBlock x:Name="TxtModel" FontWeight="Bold"/>
-                <TextBlock x:Name="TxtPath"/>
-                <TextBlock x:Name="TxtSerial" Foreground="Yellow"/>
-            </StackPanel>
+		<Border Background="#F4F5F7" BorderBrush="#E0E0E0" BorderThickness="1" Padding="12" CornerRadius="8">
+			<StackPanel Spacing="3">
+				<TextBlock x:Name="TxtModel" FontWeight="Bold" Foreground="#333333"/>
+				<TextBlock x:Name="TxtPath" Foreground="#666666"/>
+				<TextBlock x:Name="TxtSerial" Foreground="#D32F2F" FontWeight="Bold"/>
+			</StackPanel>
         </Border>
 
         <StackPanel Spacing="4">
